@@ -1,0 +1,8 @@
+services:
+  gs-ghost:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    ports:
+      - "8000:8000"
+

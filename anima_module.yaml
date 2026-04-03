@@ -1,0 +1,13 @@
+name: gs-ghost
+codename: GS-GHOST
+paper:
+  arxiv: "2603.18912"
+  title: "GHOST: Fast Category-agnostic Hand-Object Interaction Reconstruction from RGB Videos using Gaussian Splatting"
+runtime:
+  python: "3.11"
+  package_manager: uv
+  entrypoint: "python -m anima_gs_ghost.serve"
+artifacts:
+  root: "artifacts"
+  reports: "reports"
+

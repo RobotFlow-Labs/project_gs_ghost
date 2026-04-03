@@ -1,0 +1,4 @@
+# Linux CUDA training add-ons that are intentionally kept out of the base
+# pyproject dependency graph so macOS prebuild/bootstrap stays deterministic.
+git+https://github.com/NVlabs/nvdiffrast.git
+git+https://github.com/facebookresearch/pytorch3d.git

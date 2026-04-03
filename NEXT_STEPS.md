@@ -1,58 +1,81 @@
-# FUJIN — Execution Ledger
+# GS-GHOST — Execution Ledger
 
-Resume rule: Read this file COMPLETELY before writing any code.
-This project covers exactly ONE paper: GHOST: Hand-Object Reconstruction via 3DGS.
+Resume rule: Read this file completely before writing code.
+This project covers exactly one paper implementation track plus ANIMA wrappers.
 
 ## 1. Working Rules
-- Work only inside `project_fujin/`
-- This wave has 17 parallel projects, 17 papers, 17 agents
-- Prefix every commit with `[FUJIN]`
-- Stage only `project_fujin/` files
-- VERIFY THE PAPER BEFORE BUILDING ANYTHING
+- Work only inside `project_gs_ghost/`
+- Prefix every commit with `[GS-GHOST]`
+- Use `uv`, never `pip`
+- Use Python `3.11`
+- Keep macOS bootstrap light, but preserve the Linux CUDA path for later training
+- Verify paper and reference repo behavior before implementing paper-facing stages
 
-## 2. The Paper
-- **Title**: GHOST: Hand-Object Reconstruction via 3DGS
-- **ArXiv**: 2503.14397
-- **Link**: https://arxiv.org/abs/2503.14397
+## 2. Paper
+- **Title**: GHOST: Fast Category-agnostic Hand-Object Interaction Reconstruction from RGB Videos using Gaussian Splatting
+- **ArXiv**: `2603.18912`
+- **Link**: https://arxiv.org/abs/2603.18912
 - **Repo**: https://github.com/ATAboukhadra/GHOST
-- **Compute**: GPU-NEED
-- **Verification status**: ArXiv ID ✅ | Repo ✅ | Paper read ⬜
+- **Compute**: Mac local for scaffold + Linux CUDA for training
+- **Verification status**: PDF ✅ | Repo ✅ | Planning docs ✅ | Implementation in progress ⬜
 
 ## 3. Current Status
 - **Date**: 2026-04-03
-- **Phase**: Scaffold (just created)
-- **MVP Readiness**: 5%
-- **Accomplished**: Project scaffolded with standard structure
-- **TODO**:
-  1. Download paper PDF
-  2. Clone reference repo to /Volumes/AIFlowDev/RobotFlowLabs/repos/wave7
-  3. Read paper thoroughly
-  4. Fill in CLAUDE.md core method / what we take / skip / adapt
-  5. Fill in PRD.md sections 1, 3-6, 8-11
-  6. Run reference demo/inference
-  7. Begin Phase 1 verification
-- **Blockers**: None
+- **Phase**: PRD-02 preprocessing + alignment foundations
+- **MVP Readiness**: 30%
+- **Current active checkpoint**: `PRD-0205` grasp detection and HO alignment losses
 
-## 4. Datasets
-### Required for this paper
-| Dataset | Size | URL | Format | Phase Needed |
-|---------|------|-----|--------|-------------|
-| (TODO after reading paper) | — | — | — | Phase 1 |
+### Completed This Session
+1. Renamed the stale FUJIN scaffold to GS-GHOST package structure
+2. Upgraded project runtime to Python `3.11` with `uv`
+3. Added typed config, asset checks, sequence layout helpers, module manifest, and service container scaffold
+4. Split Linux CUDA source builds out of base `uv sync` into `scripts/install_cuda_linux.sh`
+5. Implemented pure-Python preprocessing wrappers for:
+   - SAM2 object mask stage
+   - HLoc / VGGSfM SfM stage
+   - prompt + prior retrieval contract
+6. Implemented prior-mask alignment contract with explicit IoU loss and best-candidate selection
+7. Implemented HaMeR jitter rejection + interpolation postprocessing
+8. Added foundation, preprocessing, retrieval, and alignment tests
 
-### Check shared volume first
-/Volumes/AIFlowDev/RobotFlowLabs/datasets
+### Verified
+- `uv sync --group dev` ✅
+- `uv run pytest tests/test_config.py tests/test_layout.py tests/test_preprocess_stages.py tests/test_prior_retrieval.py tests/test_alignment.py -v` ✅
+- `uv run ruff check src/ tests/` ✅
 
-### Download
-`bash scripts/download_data.sh`
+## 4. Immediate Next Tasks
+1. Implement `tasks/PRD-0205.md`:
+   - `src/anima_gs_ghost/alignment/grasp_detection.py`
+   - HO alignment loss terms `L_contact`, `L_proj`, `L_temp`
+2. Implement `tasks/PRD-0206.md`:
+   - object Gaussian optimization shell
+   - hand Gaussian optimization shell
+3. Start `tasks/PRD-0301.md` once the PRD-02 loss and optimization contracts are in place
 
-## 5. Hardware
-- ZED 2i stereo camera: Available
-- Unitree L2 3D LiDAR: Available
-- xArm 6 cobot: Pending purchase
-- Mac Studio M-series: MLX dev
-- 8x RTX 6000 Pro Blackwell: GCloud
+## 5. Known Blockers
+- True paper execution still needs external assets/checkpoints not yet present:
+  - `repositories/GHOST/preprocess/_DATA/data/mano/MANO_RIGHT.pkl`
+  - `repositories/GHOST/preprocess/hamer_demo_data.tar.gz`
+  - SAM2 / HaMeR / VGGSfM runtime checkpoints and model dependencies
+  - Objaverse / OpenShape retrieval assets
+- Base macOS scaffold is working; actual reconstruction training remains blocked until Linux CUDA environment + assets are provisioned
 
-## 6. Session Log
+## 6. Runtime / Install Notes
+- Local mac bootstrap:
+  - `uv venv .venv --python /Users/ilessio/.local/bin/python3.11`
+  - `uv sync --group dev`
+- Future Linux CUDA bootstrap:
+  - `./scripts/install_cuda_linux.sh`
+
+## 7. Data Paths
+- Shared datasets root: `/Volumes/AIFlowDev/RobotFlowLabs/datasets`
+- Models root: `/Volumes/AIFlowDev/RobotFlowLabs/datasets/models`
+- Repo mirror root: `/Volumes/AIFlowDev/RobotFlowLabs/repos/wave7`
+
+## 8. Session Log
 | Date | Agent | What Happened |
 |------|-------|---------------|
-| 2026-04-03 | ANIMA Research Agent | Project scaffolded |
+| 2026-04-03 | Codex | Replaced stale FUJIN scaffold with GS-GHOST Python 3.11 foundation |
+| 2026-04-03 | Codex | Added uv-safe dependency split for mac bootstrap vs Linux CUDA install |
+| 2026-04-03 | Codex | Implemented SAM2/SfM stage wrappers and prior retrieval contract with tests |
+| 2026-04-03 | Codex | Implemented prior-mask alignment and HaMeR jitter/interpolation contracts with tests |

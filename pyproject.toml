@@ -3,20 +3,60 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "anima-fujin"
+name = "anima-gs-ghost"
 version = "0.1.0"
-description = "ANIMA FUJIN — GHOST: Hand-Object Reconstruction via 3DGS"
-requires-python = ">=3.10"
+description = "ANIMA GS-GHOST — paper-faithful GHOST hand-object reconstruction scaffold"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
 dependencies = [
-    "torch>=2.0",
-    "numpy",
-    "opencv-python",
+    "numpy>=1.26",
+    "opencv-python>=4.10",
+    "pydantic>=2.11",
+    "rich>=14.0",
+    "typing-extensions>=4.12",
 ]
 
 [project.optional-dependencies]
-mlx = ["mlx>=0.10", "mlx-nn"]
-dev = ["pytest", "ruff", "mypy"]
+paper = [
+    "dearpygui>=2.0",
+    "lpips>=0.1.4",
+    "matplotlib>=3.9",
+    "Pillow>=10.4",
+    "plyfile>=1.1",
+    "roma>=1.5",
+    "scikit-image>=0.24",
+    "scipy>=1.14",
+    "tqdm>=4.66",
+    "trimesh>=4.6",
+    "tyro>=0.9",
+]
+mac = [
+    "mlx>=0.28",
+]
+cuda = [
+    "torch>=2.5; platform_system == 'Linux'",
+    "torchvision>=0.20; platform_system == 'Linux'",
+    "pycolmap==3.13.0; platform_system == 'Linux'",
+]
+serve = [
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "ruff>=0.8",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/anima_gs_ghost"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

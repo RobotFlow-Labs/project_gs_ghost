@@ -1,19 +1,45 @@
 [project]
-name = "anima-fujin"
-codename = "FUJIN"
-functional_name = "GS-ghost"
+name = "anima-gs-ghost"
+codename = "GS-GHOST"
+functional_name = "GS-GHOST"
 wave = 7
-paper_arxiv = "2503.14397"
+paper_arxiv = "2603.18912"
+paper_pdf = "papers/2603.18912_GHOST.pdf"
 
 [compute]
-backend = "auto"  # "mlx", "cuda", "auto"
+backend = "auto"
+preferred_backends = ["mlx", "cuda", "cpu"]
 precision = "fp32"
 
+[compute.cuda]
+enabled = true
+train_extra = "cuda"
+device = "cuda:0"
+
+[compute.mlx]
+enabled = true
+train_extra = "mac"
+
 [data]
+artifacts_root = "artifacts"
 shared_volume = "/Volumes/AIFlowDev/RobotFlowLabs/datasets"
+models_root = "/Volumes/AIFlowDev/RobotFlowLabs/datasets/models"
+datasets_root = "/Volumes/AIFlowDev/RobotFlowLabs/datasets/datasets"
 repos_volume = "/Volumes/AIFlowDev/RobotFlowLabs/repos/wave7"
+
+[pipeline]
+object_mask_method = "sam2"
+sfm_method = "vggsfm"
+use_prior = true
+prior_topk = 10
+
+[training]
+object_iterations = 30000
+combined_iterations = 30000
+alignment_iterations = 500
+prior_alignment_iterations = 1500
 
 [hardware]
 zed2i = true
 unitree_l2_lidar = true
-cobot_xarm6 = false  # Set true when purchased
+cobot_xarm6 = false
