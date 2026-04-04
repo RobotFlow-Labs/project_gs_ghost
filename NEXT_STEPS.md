@@ -17,7 +17,7 @@ This project covers exactly one paper implementation track plus ANIMA wrappers.
 - **ArXiv**: `2603.18912`
 - **Link**: https://arxiv.org/abs/2603.18912
 - **Repo**: https://github.com/ATAboukhadra/GHOST
-- **Compute**: GPU server (L4 23GB), CUDA_VISIBLE_DEVICES=1
+- **Compute**: GPU server (L4 23GB), CUDA_VISIBLE_DEVICES=5
 - **Verification status**: PDF + Repo + Planning + Implementation ✅
 
 ## 3. Current Status
@@ -47,17 +47,19 @@ This project covers exactly one paper implementation track plus ANIMA wrappers.
 - torch 2.11.0+cu128, CUDA available, 8x L4 GPUs detected ✅
 
 ## 4. Immediate Next Tasks
-1. **Download/provision hand model weights** — MANO (gated) or obtain NIMBLE pm_dict
-2. **Download ARCTIC eval sequences** — needed for benchmark evaluation
-3. **Wire actual SAM2/VGGSfM/HaMeR** execution into preprocessing stages (currently MOCK)
-4. **CUDA optimization** — implement clone/split in densification, profile and tune
-5. **Training run** — once data + models available, run on GPU 1
-6. **Export pipeline** — pth → safetensors → ONNX → TRT FP16 + FP32
+1. **Synthetic training VALIDATED** — 30K iter on GPU 5, rasterizer forward+backward works, 140 it/s
+2. **HaMeR checkpoint extracted** — `/mnt/forge-data/models/hamer_demo_data/_DATA/` (6.1GB) with hamer.ckpt + MANO mean params
+3. **Download ARCTIC eval sequences** — BLOCKER for real training, need leaderboard registration
+4. **Wire actual SAM2/VGGSfM/HaMeR** execution into preprocessing stages (currently MOCK)
+5. **CUDA optimization** — implement clone/split in densification, rebuild rasterizer for cu128 if needed for >1M Gaussians
+6. **Real training run** — once ARCTIC data available, run on GPU 5
+7. **Export pipeline** — pth → safetensors → ONNX → TRT FP16 + FP32
 
 ## 5. Known Blockers
-- **Hand model weights**: MANO is gated (Max Planck). Handy/NIMBLE repos are on disk but lack actual model weight files (require registration).
-- **ARCTIC dataset**: Not yet on disk. Need download for benchmark evaluation.
-- **Preprocessing stages**: SAM2/VGGSfM/HaMeR are wired as MOCK interfaces — need actual model loading to run end-to-end.
+- **ARCTIC dataset**: NOT on disk. Requires ARCTIC leaderboard registration + HOLD download script. BLOCKER for paper-faithful training.
+- **Hand model weights**: HaMeR has MANO mean params (enough for hand init). Full MANO model still gated. Handy/NIMBLE repos lack weight files.
+- **Shared rasterizer CUDA version**: Pre-built .so may have been compiled with CUDA 13. Works for <1M Gaussians but crashes above. May need rebuild with cu128 for dense scenes.
+- **Preprocessing stages**: SAM2/VGGSfM/HaMeR are MOCK interfaces — need submodule cloning + env setup for actual execution.
 
 ## 6. Architecture Summary
 ```
@@ -115,3 +117,5 @@ src/anima_gs_ghost/
 | 2026-04-03 | Codex | Implemented SAM2/SfM stage wrappers and prior retrieval contract with tests |
 | 2026-04-03 | Codex | Implemented prior-mask alignment and HaMeR jitter/interpolation contracts with tests |
 | 2026-04-04 | Opus | GPU server build: venv + torch cu128, all PRDs 0205-0703, ANIMA infra, 74/74 tests |
+| 2026-04-04 | Opus | Synthetic training validated on GPU 5: 200K Gaussians, 30K iters, 140 it/s, checkpoints OK |
+| 2026-04-04 | Opus | HaMeR demo data extracted (6.1GB) — hamer.ckpt + MANO mean params available |
