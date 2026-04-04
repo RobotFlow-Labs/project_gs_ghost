@@ -1,8 +1,65 @@
+version: "3.8"
+
 services:
-  gs-ghost:
+  gs-ghost-serve:
     build:
       context: .
       dockerfile: Dockerfile.serve
+    profiles: ["serve"]
     ports:
-      - "8000:8000"
+      - "8080:8080"
+    volumes:
+      - /mnt/forge-data/models:/data/models:ro
+      - /mnt/forge-data/shared_infra/cuda_extensions:/data/cuda_extensions:ro
+      - /mnt/artifacts-datai/checkpoints/project_gs_ghost:/data/checkpoints:ro
+    environment:
+      - ANIMA_MODULE_NAME=gs-ghost
+      - ANIMA_DEVICE=auto
+      - NVIDIA_VISIBLE_DEVICES=1
+    network_mode: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
+  gs-ghost-ros2:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    profiles: ["ros2"]
+    command: ["python", "-m", "anima_gs_ghost.ros2.node"]
+    volumes:
+      - /mnt/forge-data/models:/data/models:ro
+    environment:
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - NVIDIA_VISIBLE_DEVICES=1
+    network_mode: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  gs-ghost-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    profiles: ["api"]
+    ports:
+      - "8080:8080"
+    environment:
+      - ANIMA_DEVICE=cpu
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    profiles: ["test"]
+    command: ["python", "-m", "pytest", "tests/", "-v"]
+    volumes:
+      - ./tests:/app/tests:ro

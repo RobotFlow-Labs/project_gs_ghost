@@ -1,18 +1,31 @@
-FROM python:3.11-slim
+# GS-GHOST — ANIMA 3-layer Docker pattern
+# Layer 3: Module-specific (builds on anima-serve:jazzy)
 
-ENV UV_LINK_MODE=copy \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ARG BASE_IMAGE=ghcr.io/robotflow-labs/anima-serve:jazzy
+FROM ${BASE_IMAGE} AS base
+
+LABEL org.opencontainers.image.title="anima-gs-ghost"
+LABEL org.opencontainers.image.description="GHOST Hand-Object 3DGS Reconstruction"
 
 WORKDIR /app
 
-COPY pyproject.toml .python-version README.md ./
-COPY src ./src
+COPY pyproject.toml ./
+RUN uv pip install --system -e ".[serve]" \
+    && uv pip install --system torch torchvision --index-url https://download.pytorch.org/whl/cu128
 
-RUN pip install --no-cache-dir uv && \
-    uv sync --no-dev
+COPY src/ ./src/
+COPY configs/ ./configs/
+COPY scripts/ ./scripts/
 
-EXPOSE 8000
+ENV ANIMA_MODULE_NAME=gs-ghost
+ENV ANIMA_MODULE_VERSION=0.2.0
+ENV ANIMA_SERVE_PORT=8080
+ENV ANIMA_DEVICE=auto
+ENV ANIMA_HF_REPO=ilessio-aiflowlab/project_gs_ghost
 
-CMD ["uv", "run", "python", "-m", "anima_gs_ghost.serve"]
+EXPOSE 8080
 
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["python", "-m", "anima_gs_ghost.serve"]

@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "anima-gs-ghost"
-version = "0.1.0"
-description = "ANIMA GS-GHOST — paper-faithful GHOST hand-object reconstruction scaffold"
+version = "0.2.0"
+description = "ANIMA GS-GHOST — CUDA-optimized GHOST hand-object 3DGS reconstruction"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
@@ -14,33 +14,30 @@ dependencies = [
     "pydantic>=2.11",
     "rich>=14.0",
     "typing-extensions>=4.12",
-]
-
-[project.optional-dependencies]
-paper = [
-    "dearpygui>=2.0",
-    "lpips>=0.1.4",
-    "matplotlib>=3.9",
+    "torch>=2.5",
+    "torchvision>=0.20",
+    "torchaudio>=2.5",
+    "scipy>=1.14",
+    "trimesh>=4.6",
     "Pillow>=10.4",
+    "tqdm>=4.66",
     "plyfile>=1.1",
     "roma>=1.5",
     "scikit-image>=0.24",
-    "scipy>=1.14",
-    "tqdm>=4.66",
-    "trimesh>=4.6",
+    "lpips>=0.1.4",
+    "safetensors>=0.4",
+    "tensorboard>=2.18",
     "tyro>=0.9",
 ]
-mac = [
-    "mlx>=0.28",
-]
-cuda = [
-    "torch>=2.5; platform_system == 'Linux'",
-    "torchvision>=0.20; platform_system == 'Linux'",
-    "pycolmap==3.13.0; platform_system == 'Linux'",
-]
+
+[project.optional-dependencies]
 serve = [
     "fastapi>=0.115",
     "uvicorn>=0.34",
+]
+export = [
+    "onnx>=1.16",
+    "onnxruntime>=1.19",
 ]
 
 [dependency-groups]
@@ -49,6 +46,9 @@ dev = [
     "pytest>=8.3",
     "ruff>=0.8",
 ]
+
+[tool.uv]
+extra-index-url = ["https://download.pytorch.org/whl/cu128"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/anima_gs_ghost"]

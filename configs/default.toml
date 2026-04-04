@@ -7,25 +7,32 @@ paper_arxiv = "2603.18912"
 paper_pdf = "papers/2603.18912_GHOST.pdf"
 
 [compute]
-backend = "auto"
-preferred_backends = ["mlx", "cuda", "cpu"]
-precision = "fp32"
+backend = "cuda"
+preferred_backends = ["cuda", "mlx", "cpu"]
+precision = "bf16"
 
 [compute.cuda]
 enabled = true
 train_extra = "cuda"
-device = "cuda:0"
+device = "cuda:1"
 
 [compute.mlx]
-enabled = true
+enabled = false
 train_extra = "mac"
 
 [data]
-artifacts_root = "artifacts"
-shared_volume = "/Volumes/AIFlowDev/RobotFlowLabs/datasets"
-models_root = "/Volumes/AIFlowDev/RobotFlowLabs/datasets/models"
-datasets_root = "/Volumes/AIFlowDev/RobotFlowLabs/datasets/datasets"
-repos_volume = "/Volumes/AIFlowDev/RobotFlowLabs/repos/wave7"
+artifacts_root = "/mnt/artifacts-datai"
+models_root = "/mnt/forge-data/models"
+datasets_root = "/mnt/forge-data/datasets"
+repos_volume = "/mnt/forge-data/repos"
+shared_infra = "/mnt/forge-data/shared_infra"
+
+[data.models]
+sam2_large = "/mnt/forge-data/models/sam2.1-hiera-large/sam2.1_hiera_large.pt"
+sam2_base = "/mnt/forge-data/models/sam2.1_hiera_base_plus.pt"
+sam_vit_h = "/mnt/forge-data/models/sam_vit_h_4b8939.pth"
+dinov2_vitb14 = "/mnt/forge-data/models/dinov2_vitb14_pretrain.pth"
+hamer_data = "/mnt/forge-data/models/hamer_demo_data.tar.gz"
 
 [pipeline]
 object_mask_method = "sam2"
@@ -38,6 +45,58 @@ object_iterations = 30000
 combined_iterations = 30000
 alignment_iterations = 500
 prior_alignment_iterations = 1500
+batch_size = "auto"
+learning_rate = 0.0001
+optimizer = "adam"
+scheduler = "cosine"
+warmup_ratio = 0.05
+seed = 42
+
+[training.alignment]
+optimizer = "adam"
+lr = 0.05
+iterations = 500
+lambda_contact = 1000.0
+lambda_proj = 0.1
+lambda_temp = 10.0
+
+[training.prior_alignment]
+optimizer = "adamw"
+lr = 0.01
+betas = [0.9, 0.99]
+iterations = 1500
+
+[training.object_gs]
+optimizer = "adam"
+iterations = 30000
+sh_degree = 3
+densify_until_iter = 15000
+lambda_background = 0.3
+lambda_geo = 5.0
+tau_out = 0.05
+tau_fill = 0.005
+
+[training.combined_gs]
+optimizer = "adam"
+iterations = 30000
+gaussians_per_edge = 10
+optimize_hand = true
+transl_lr = 0.0001
+
+[gaussian]
+sh_degree = 3
+tau_sim = 0.5
+
+[checkpoint]
+output_dir = "/mnt/artifacts-datai/checkpoints/project_gs_ghost"
+save_every_n_steps = 500
+keep_top_k = 2
+metric = "val_loss"
+mode = "min"
+
+[logging]
+log_dir = "/mnt/artifacts-datai/logs/project_gs_ghost"
+tensorboard_dir = "/mnt/artifacts-datai/tensorboard/project_gs_ghost"
 
 [hardware]
 zed2i = true

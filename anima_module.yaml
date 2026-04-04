@@ -1,13 +1,38 @@
 name: gs-ghost
 codename: GS-GHOST
+version: 0.2.0
 paper:
   arxiv: "2603.18912"
   title: "GHOST: Fast Category-agnostic Hand-Object Interaction Reconstruction from RGB Videos using Gaussian Splatting"
+  authors: "Aboukhadra, Rogge, Robertini, Arafa, Malik, Elhayek, Stricker"
 runtime:
   python: "3.11"
   package_manager: uv
   entrypoint: "python -m anima_gs_ghost.serve"
+  torch_index: "https://download.pytorch.org/whl/cu128"
+capabilities:
+  - hand_object_reconstruction
+  - gaussian_splatting
+  - monocular_rgb
+  - batch_inference
+api:
+  port: 8080
+  health: /health
+  ready: /ready
+  info: /info
+  predict: /reconstruct
+docker:
+  serve: Dockerfile.serve
+  compose: docker-compose.serve.yml
+  base_image: ghcr.io/robotflow-labs/anima-serve:jazzy
+ros2:
+  node: anima_gs_ghost.ros2.node
+  launch: launch/gs_ghost.launch.py
 artifacts:
-  root: "artifacts"
-  reports: "reports"
-
+  checkpoints: /mnt/artifacts-datai/checkpoints/project_gs_ghost
+  logs: /mnt/artifacts-datai/logs/project_gs_ghost
+  exports: /mnt/artifacts-datai/exports/project_gs_ghost
+  tensorboard: /mnt/artifacts-datai/tensorboard/project_gs_ghost
+hf:
+  repo: ilessio-aiflowlab/project_gs_ghost
+  checkpoint_repo: ilessio-aiflowlab/project_gs_ghost-checkpoint
